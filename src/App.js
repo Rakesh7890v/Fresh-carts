@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useState } from 'react';
 import Header from './Header';
 import Products from './Products';
 import Footer from './Footer';
@@ -16,7 +16,6 @@ import './App.css';
 function App() {
 
   const [search, setSearch] = useState('');
-  const [searchResults, setSearchResults] = useState(['']);
   const [cart, setCart] = useState([]);
   const [cartCount, setCartCount] = useState(0);
   const [isShow, setIsShow] = useState(false);
@@ -89,14 +88,6 @@ function App() {
       message: null
     }
   ]);
- 
-  useEffect(()=> {
-    const searchedResults = products.filter((product)=> product.pname && product.pname.toLowerCase().includes(search.toLowerCase()));
-    setSearchResults(searchedResults);
-    const savedCart = JSON.parse(localStorage.getItem('cart'));
-    setCart(savedCart);  
-    setCartCount(savedCart.length);
-  },[products, search]);
 
   const handleSubmitCart = (id) => {
     const cartItem = products.find((product) => product.id === id);
