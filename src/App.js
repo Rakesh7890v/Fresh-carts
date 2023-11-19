@@ -1,199 +1,89 @@
-import React, { useEffect, useState } from 'react';
 import Header from './Header';
-import Products from './Products';
-import Footer from './Footer';
-import img1 from './images/apple.jpg';
-import img2 from './images/orange.jpg';
-import img3 from './images/pineapple.jpg';
-import img4 from './images/grapes.jpg';
-import img5 from './images/dragon.jpeg';
-import img6 from './images/mango.jpg';
-import img7 from './images/kiwi.jpg';
-import img8 from './images/pomegranate.jpg';
-import img9 from './images/watermelon.jpg';
+import Home from './Home';
+import Input from './Input';
+import Profile from './Profile'
+import {Route, Routes} from 'react-router-dom';
 import './App.css';
-
+import { useEffect, useState } from 'react';
+import Recommendation from './Recommendation';
+import About from './About';
 
 function App() {
 
-  const [search, setSearch] = useState('');
-  const [searchResults, setSearchResults] = useState(['']);
-  const [cart, setCart] = useState([]);
-  const [cartCount, setCartCount] = useState(0);
-  const [isShow, setIsShow] = useState(false);
-  const [orderShow, setOrderShow] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [incomes, setIncomes] = useState({income:''})
+  const [limits, setLimits] = useState({
+    health: '', shopping: '', family: '', transportation: '',
+    food: '', loans: '',insurance: '',phone: '',utilities: '',
+    others: ''
+  })
 
-  const [ products, setProducts] = useState([
-    {
-      id: 1,
-      image: img1,
-      pname: "Apple",
-      quantity: 1,
-      price: "$25",
-      message: null
-    }, {
-      id: 2,
-      image: img2,
-      pname: "Orange",
-      quantity: 1,
-      price: "$23",
-      message: null
-    }, {
-      id: 3,
-      image: img3,
-      pname: "Pineapple",
-      quantity: 1,
-      price: "$30",
-      message: null
-    }, {
-      id: 4,
-      image: img4,
-      pname: "Grapes",
-      quantity: 1,
-      price: "$35",
-      message: null
-    }, {
-      id: 5,
-      image: img5,
-      pname: "Dragon",
-      quantity: 1,
-      price: "$40",
-      message: null
-    }, {
-      id: 6,
-      image: img6,
-      pname: "Mango",
-      quantity: 1,
-      price: "$29",
-      message: null
-    }, {
-      id: 7,
-      image: img7,
-      pname: "Kiwi",
-      quantity: 1,
-      price: "$33",
-      message: null
-    }, {
-      id: 8,
-      image: img8,
-      pname: "Pomegranate",
-      quantity: 1,
-      price: "$35",
-      message: null
-    }, {
-      id: 9,
-      image: img9,
-      pname: "Watermelon",
-      quantity: 1,
-      price: "$25",
-      message: null
+  const [selectedRecommendation, setSelectedRecommendation] = useState(null);
+  const handleSaveRecommendation = (selectedRecommendation) => {
+    setSelectedRecommendation(selectedRecommendation);
+
+    localStorage.setItem('selectedRecommendation', JSON.stringify(selectedRecommendation));
+  }
+
+  useEffect(() => {
+
+    const storedSelectedRecommendation = localStorage.getItem('selectedRecommendation');
+    if (storedSelectedRecommendation) {
+      setSelectedRecommendation(JSON.parse(storedSelectedRecommendation));
     }
-  ]);
- 
-  useEffect(()=> {
-    const searchedResults = products.filter((product)=> product.pname && product.pname.toLowerCase().includes(search.toLowerCase()));
-    setSearchResults(searchedResults);
-    const savedCart = JSON.parse(localStorage.getItem('cart'));
-    setCart(savedCart);  
-    setCartCount(savedCart.length);
-  },[products, search]);
 
-  const handleSubmitCart = (id) => {
-    const cartItem = products.find((product) => product.id === id);
-    const existingCartItem = cart.find((item) => item.id === id);
-  
-    setTimeout (()=> {
-    setProducts((prevProducts) =>
-      prevProducts.map((product) => ({ ...product, message: null }))
-    );
-    },3000);
-  
-    if (existingCartItem) {
-      // If the item is already in the cart, show an error message
-      setProducts((prevProducts) =>
-        prevProducts.map((product) =>
-          product.id === id ? { ...product, message: 'error' } : product
-        )
-      );
-    } else if (cartItem) {
-      setProducts((prevProducts) =>
-        prevProducts.map((product) =>
-          product.id === id ? { ...product, message: 'success' } : product
-        )
-      );
-  
-      setCart((prevCart) => [...prevCart, { ...cartItem }]);
-      setCartCount((prevCount) => {
-        const newCount = parseInt(prevCount, 10);
-        return isNaN(newCount) ? 1 : newCount + 1;
-      });
-  
-      localStorage.setItem('cart', JSON.stringify([...cart, { ...cartItem }]));
+    const storedIncome = localStorage.getItem('income');
+    if (storedIncome) {
+      setIncomes({income: storedIncome});
     }
-  };
+
+    Object.keys(limits).forEach((key) => {
+      const storedValue = localStorage.getItem(key);
+      if (storedValue) {
+        setLimits((prevLimits) => ({...prevLimits, [key]: storedValue}));
+      }
+    })
+  }, [limits]);
   
-  
-
-  const handleDelete = (id) => {
-    const delet = cart.filter(cart => cart.id !== id)
-    setCart(delet);
-    setCartCount(
-      prevCount => prevCount -1
-    ); 
-    localStorage.setItem('cart',JSON.stringify(cart));
-  }
-
-  const handleFont = () => {
-    setIsShow(true);
-  }
-
-  const handleTimes = () => {
-    setIsShow(false);
-  }
-
-  const handleOrderNow = () => {
-    if (cartCount === 0) {
-      setOrderShow(false);
+  const handleInputChange =(e) => {
+    const {name, value} = e.target;
+    if (name === 'income') {
+      setIncomes({income: value});
+      localStorage.setItem('income', value);
     } else {
-      setCart([]);
-      setIsShow(false);
-      setCartCount(0);
-      setLoading(true);
-      setTimeout(() => {
-        setLoading(false);
-        setOrderShow(true);
-      }, 2000);
-      localStorage.setItem('cart', JSON.stringify([]));
+      setLimits((prevLimits) => ({...prevLimits, [name]: value}));
+      localStorage.setItem(name,value);
     }
   };
 
-  const handleContinue = () => {
-    setOrderShow(false);
-  }
+  const parsedLimits = {
+    ...limits,
+    health: parseInt(limits.health, 10),
+    shopping: parseInt(limits.shopping, 10),
+    family: parseInt(limits.family, 10),
+    transportation: parseInt(limits.transportation, 10),
+    food: parseInt(limits.food, 10),
+    loans: parseInt(limits.loans, 10),
+    insurance: parseInt(limits.insurance, 10),
+    phone: parseInt(limits.phone, 10),
+    utilities: parseInt(limits.utilities, 10),
+    others: parseInt(limits.others, 10)
+  };
+  const parsedIncome = { ...incomes, income: parseInt(incomes.income, 10)}
+
+  const totalLimits = Object.values(parsedLimits).reduce((acc, value) => acc + value ,0)
+  const totalIncome = Object.values(parsedIncome).reduce((acc, value) => acc + value ,0)
+  const balance = totalIncome - totalLimits;
 
   return (
     <div className="App">
-      <Header 
-        cartCount={cartCount} 
-        handleFont={handleFont}
-      />
-      <Products 
-        products={products}
-        searchResults={searchResults} 
-        handleSubmitCart={handleSubmitCart}
-        cart={cart} isShow={isShow} 
-        handleTimes={handleTimes} 
-        handleDelete={handleDelete}
-        orderShow = {orderShow}
-        loading={loading}
-        handleOrderNow={handleOrderNow}
-        handleContinue={handleContinue}
-        search={search} 
-        setSearch={setSearch} 
-        cartCount={cartCount}
-      />
-      <Footer />
+      <Header/>
+          <Routes>
+          <Route path='/' element={<Home />}/>
+          <Route path='/input' element={<Input limits={limits} incomes={incomes} handleInputChange={handleInputChange} />}/>
+          <Route path='/profile' element={<Profile limits={limits} incomes={incomes} balance={balance} selectedRecommendation={selectedRecommendation} />}/>
+          <Route path='/recommendation' element={<Recommendation incomes={incomes} parsedLimits={parsedLimits} balance={balance} onSaveRecommendation={handleSaveRecommendation} />}/>
+          <Route path='/about' element={<About />}/>
+          </Routes>
     </div>
   );
 }
