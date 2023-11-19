@@ -10,7 +10,7 @@ import img17 from './images/corainder.png';
 import img18 from './images/cauli.png';
 
 const Products = ({ 
-  searchResults, handleSubmitCart , cart,
+  products, handleSubmitCart , cart,
   isShow,handleTimes, handleDelete,
   orderShow,loading,handleOrderNow, handleContinue,search, setSearch, cartCount}) => {
 
@@ -55,7 +55,7 @@ const Products = ({
         )}
 
       
-      {searchResults.map(product => 
+      {products.map(product => 
           <div className="product" key={product.id}>  
               <div className="top">
                 <img src={product.image} alt={product.pname} />
